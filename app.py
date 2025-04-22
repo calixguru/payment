@@ -41,9 +41,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Query param reset
-params = st.experimental_get_query_params()
+params = st.query_params()
 if "reset" in params:
-    st.experimental_set_query_params()
+    st.query_params()
     st.session_state.clear()
 
 # Payment control flag
@@ -58,7 +58,7 @@ if not st.session_state.pay_clicked:
     email = st.text_input("Enter your email")
     amount = st.number_input("Enter amount (₦)", min_value=100)
 
-    if st.button("Pay Now"):
+    if st.button("Click to pay"):
         if email and amount:
             st.session_state.pay_clicked = True
             st.session_state.email = email
