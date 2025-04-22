@@ -40,10 +40,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Query param reset
-params = st.query_params()
+# Query param reset (corrected here)
+params = st.query_params
 if "reset" in params:
-    st.query_params()
+    st.query_params.update({})  # ✅ New method replacing deprecated experimental_set_query_params
     st.session_state.clear()
 
 # Payment control flag
@@ -135,7 +135,7 @@ else:
                             window.location.href = "?reset=1";
                         }}
                     }}).openIframe();
-                }}, 1000);  // Delay to allow animation
+                }}, 1000);
             </script>
         </body>
         </html>
