@@ -6,7 +6,7 @@ st.set_page_config(page_title="CalixGuru Payment", layout="centered")
 st.markdown("## 🔐 CalixGuru Secure Payment Page")
 st.markdown("Please choose an option below to proceed:")
 
-# Use updated API for query params
+# Get query parameters
 params = st.query_params
 email = params.get("email", "")
 amount = params.get("amount", "")
@@ -22,21 +22,53 @@ except (ValueError, TypeError):
 # Paystack public key
 paystack_pk = "pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068"
 
-# Your URLs
+# Django backend URLs
 backend_url = "https://calixguru.pythonanywhere.com"
 verify_url = f"{backend_url}/verify-payment/?ref={reference}&email={email}&amount={amount}&reason={reason}"
 cancel_url = f"{backend_url}/payment-cancelled"
 
-# --- BUTTONS ---
-col1, col2, col3 = st.columns(3)
+# Show payment info
+if all([email, amount, reason, reference]):
+    st.success(f"**Email:** {email} | **Amount:** ₦{amount} | **Reason:** {reason}")
+else:
+    st.error("Missing some payment parameters in the URL.")
+
+# State to control display of Paystack
+start_payment = st.button("💳 Start Payment")
+
+# Manual links
+col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("💳 Start Payment"):
-        # Inject Paystack popup
-        payment_modal = f"""
+    st.markdown(
+        f"""
+        <a href="{verify_url}" style="text-decoration: none;">
+            <button style="width: 100%; padding: 0.5rem; font-weight: bold; background-color: green; color: white; border: none; border-radius: 5px;">✅ Verify Payment</button>
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with col2:
+    st.markdown(
+        f"""
+        <a href="{cancel_url}" style="text-decoration: none;">
+            <button style="width: 100%; padding: 0.5rem; font-weight: bold; background-color: red; color: white; border: none; border-radius: 5px;">❌ Cancel Payment</button>
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# If "Start Payment" clicked, show Paystack popup trigger below
+if start_payment:
+    st.markdown("---")
+    st.markdown("### 📤 Launching Paystack Payment...")
+    components.html(f"""
         <html>
-          <head><script src="https://js.paystack.co/v1/inline.js"></script></head>
-          <body onload="payWithPaystack()">
+          <head>
+            <script src="https://js.paystack.co/v1/inline.js"></script>
+          </head>
+          <body>
             <script>
               function payWithPaystack() {{
                 var handler = PaystackPop.setup({{
@@ -63,34 +95,8 @@ with col1:
                 }});
                 handler.openIframe();
               }}
+              payWithPaystack();
             </script>
           </body>
         </html>
-        """
-        components.html(payment_modal, height=10)
-
-with col2:
-    st.markdown(
-        f"""
-        <a href="{verify_url}" style="text-decoration: none;">
-            <button style="width: 100%; padding: 0.5rem; font-weight: bold; background-color: green; color: white; border: none; border-radius: 5px;">✅ Verify Payment</button>
-        </a>
-        """,
-        unsafe_allow_html=True,
-    )
-
-with col3:
-    st.markdown(
-        f"""
-        <a href="{cancel_url}" style="text-decoration: none;">
-            <button style="width: 100%; padding: 0.5rem; font-weight: bold; background-color: red; color: white; border: none; border-radius: 5px;">❌ Cancel Payment</button>
-        </a>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# Optional debug info
-if not all([email, amount, reason, reference]):
-    st.warning("Some payment details are missing in the URL.")
-else:
-    st.info(f"🔎 **Email:** {email} | **Amount:** ₦{amount} | **Reason:** {reason}")
+        """, height=20)
