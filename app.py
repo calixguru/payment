@@ -99,4 +99,4 @@ if start_payment:
             </script>
           </body>
         </html>
-        """, height=20)
+        """, height=200)
