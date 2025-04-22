@@ -53,7 +53,7 @@ if "pay_clicked" not in st.session_state:
 # Show form
 if not st.session_state.pay_clicked:
     st.markdown("<div class='paybox'>", unsafe_allow_html=True)
-    st.markdown("### 💳 Make a Payment")
+    st.markdown("### 💳 Make a Payment to Calixguru")
 
     email = st.text_input("Enter your email")
     amount = st.number_input("Enter amount (₦)", min_value=100)
