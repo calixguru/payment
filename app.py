@@ -24,9 +24,9 @@ except ValueError:
 paystack_pk = "pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068"
 
 # Your Django URLs (replace 127.0.0.1 with actual deployed domain when live)
-backend_url = "127.0.0.1:8000"
-verify_url = f"http://{backend_url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
-cancel_url = f"http://{backend_url}/payment-cancelled"
+backend_url = "calixguru.pythonanywhere.com"
+verify_url = f"https://{backend_url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
+cancel_url = f"https://{backend_url}/payment-cancelled"
 
 # Paystack modal HTML
 payment_modal = f"""
