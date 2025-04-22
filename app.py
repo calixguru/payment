@@ -1,31 +1,34 @@
-
 import streamlit as st
 import streamlit.components.v1 as components
-import urllib.parse
 
-# Get query parameters
-params = st.experimental_get_query_params()
-email = params.get("email", [""])[0]
-amount = params.get("amount", [""])[0]
-reason = params.get("reason", [""])[0]
-reference = params.get("ref", [""])[0]
+# Use updated API
+params = st.query_params
+email = params.get("email", "")
+amount = params.get("amount", "")
+reason = params.get("reason", "")
+reference = params.get("ref", "")
 
-url = '127.0.0.1:8000'
-# Convert amount to kobo (Paystack expects lowest currency unit)
+# Validate input
+if not all([email, amount, reason, reference]):
+    st.error("Missing payment information in URL.")
+    st.stop()
+
+# Convert amount to Kobo
 try:
     kobo_amount = int(amount) * 100
 except ValueError:
-    st.error("Invalid amount provided.")
+    st.error("Invalid amount value.")
     st.stop()
-
-# Construct redirect URLs
-verify_url = f"https://{url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
-cancel_url = f"https://{url}/payment-cancelled"
 
 # Your public Paystack key (safe to expose)
 paystack_pk = "pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068"
 
-# Trigger Paystack popup using HTML + JS
+# Your Django URLs (replace 127.0.0.1 with actual deployed domain when live)
+backend_url = "127.0.0.1:8000"
+verify_url = f"http://{backend_url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
+cancel_url = f"http://{backend_url}/payment-cancelled"
+
+# Paystack modal HTML
 payment_modal = f"""
 <html>
   <head><script src="https://js.paystack.co/v1/inline.js"></script></head>
@@ -41,7 +44,7 @@ payment_modal = f"""
           metadata: {{
             custom_fields: [
               {{
-                display_name: "{email}",
+                display_name: "Payment Reason",
                 variable_name: "reason",
                 value: "{reason}"
               }}
@@ -61,5 +64,5 @@ payment_modal = f"""
 </html>
 """
 
-# Display modal inside Streamlit iframe
-components.html(payment_modal, height=10)
+# Display in Streamlit iframe (adjust height to show full modal)
+components.html(payment_modal, height=600)
