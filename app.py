@@ -1,50 +1,86 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import urllib.parse
 
-# Get query params
+# --- Page Configuration ---
+st.set_page_config(page_title="CALIXGURU PAYMENT", layout="centered")
+
+# --- Query Params ---
 params = st.query_params
 email = params.get("email", "")
 amount = params.get("amount", "")
 reason = params.get("reason", "")
 reference = params.get("ref", "")
 
-# App title
-st.title("Calixguru Payment Page")
-
-# Validate inputs
+# --- Validation ---
 if not all([email, amount, reason, reference]):
-    st.error("Missing payment info in URL. Please ensure email, amount, reason, and reference are passed.")
+    st.error("🚫 Missing one or more required parameters in the URL.")
     st.stop()
 
-# Convert to kobo
+# --- Convert Amount ---
 try:
     kobo_amount = int(amount) * 100
 except ValueError:
-    st.error("Invalid amount.")
+    st.error("🚫 Invalid amount.")
     st.stop()
 
-# Base URLs
-backend_url = "https://calixguru.pythonanywhere.com"
-streamlit_url = "https://calixguru.streamlit.app"
-verify_url = f"{backend_url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
-cancel_url = f"{backend_url}"  # Home page or landing page
-return_to_self_url = f"{streamlit_url}?ref={reference}&email={email}&amount={amount}&reason={reason}"
-
-# Your Paystack public key (safe to expose)
+# --- Config ---
 paystack_pk = "pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068"
+backend_url = "https://calixguru.pythonanywhere.com"
+verify_url = f"{backend_url}/verify-payment/?ref={reference}&email={email}&amount={amount}&reason={reason}"
+cancel_url = f"{backend_url}/payment-cancelled/"
+initiate_url = f"{backend_url}/initiate-payment/"
 
-# 3 Buttons
+# --- Page Header ---
+st.markdown(
+    """
+    <div style="text-align:center;">
+        <h2 style="color:#4CAF50;">💳 Calixguru Payment Gateway</h2>
+        <p style="font-size:16px;">Use the options below to initiate, verify, or cancel your payment.</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- Display Transaction Info ---
+with st.expander("🔍 Payment Details", expanded=True):
+    st.write(f"**Email:** {email}")
+    st.write(f"**Amount:** ₦{amount}")
+    st.write(f"**Reason:** {reason}")
+    st.write(f"**Reference:** {reference}")
+
+st.markdown("---")
+
+# --- Buttons Section ---
 col1, col2, col3 = st.columns(3)
+
 with col1:
-    if st.button("💳 Start Payment"):
-        # Inject Paystack modal inside iframe
-        payment_html = f"""
+    if st.button("✅ Start Payment"):
+        payment_modal = f"""
         <html>
           <head>
             <script src="https://js.paystack.co/v1/inline.js"></script>
+            <style>
+              .exit-btn {{
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                background-color: #f44336;
+                color: white;
+                padding: 10px 16px;
+                font-size: 14px;
+                border: none;
+                border-radius: 5px;
+                z-index: 9999;
+                cursor: pointer;
+                font-weight: bold;
+              }}
+              .exit-btn:hover {{
+                background-color: #d32f2f;
+              }}
+            </style>
           </head>
           <body onload="payWithPaystack()">
+            <button class="exit-btn" onclick="window.location.href='{cancel_url}'">❌ Cancel Payment</button>
             <script>
               function payWithPaystack() {{
                 var handler = PaystackPop.setup({{
@@ -63,10 +99,10 @@ with col1:
                     ]
                   }},
                   callback: function(response) {{
-                    window.location.href = "{return_to_self_url}";
+                    window.location.href = "{verify_url}";
                   }},
                   onClose: function() {{
-                    alert("Payment modal closed.");
+                    window.location.href = "{cancel_url}";
                   }}
                 }});
                 handler.openIframe();
@@ -75,12 +111,25 @@ with col1:
           </body>
         </html>
         """
-        components.html(payment_html, height=600)
+        components.html(payment_modal, height=700)
 
 with col2:
-    verify_link = f"{verify_url}"
-    st.markdown(f"[🔍 Verify Payment]({verify_link})", unsafe_allow_html=True)
+    if st.button("🔍 Verify Payment"):
+        st.success("Redirecting to verify your payment...")
+        st.markdown(f"""<meta http-equiv="refresh" content="0; URL={verify_url}">""", unsafe_allow_html=True)
 
 with col3:
-    cancel_link = f"{cancel_url}"
-    st.markdown(f"[❌ Cancel Payment]({cancel_link})", unsafe_allow_html=True)
+    if st.button("❌ Cancel Payment"):
+        st.warning("Cancelling your payment...")
+        st.markdown(f"""<meta http-equiv="refresh" content="0; URL={cancel_url}">""", unsafe_allow_html=True)
+
+# --- Footer ---
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align:center; font-size: 13px; color: grey;">
+        Powered by <strong>Calixguru</strong> | Secure Paystack Integration ✅
+    </div>
+    """,
+    unsafe_allow_html=True
+)
