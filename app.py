@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="CalixGuru Payment", layout="centered")
 
-st.markdown("## 🔐 CalixGuru Secure Payment Page")
+st.markdown("## 🔐 CalixGuru Payment Page")
 st.markdown("Please choose an option below to proceed:")
 
 # Get query parameters
@@ -43,7 +43,7 @@ with col1:
     st.markdown(
         f"""
         <a href="{verify_url}" style="text-decoration: none;">
-            <button style="width: 100%; padding: 0.5rem; font-weight: bold; background-color: green; color: white; border: none; border-radius: 5px;">✅ Verify Payment</button>
+            <button style="width: 100%; padding: 1.5rem; margin: 10px; font-weight: bold; background-color: green; color: white; border: none; border-radius: 5px;">✅ Verify Payment</button>
         </a>
         """,
         unsafe_allow_html=True,
@@ -53,7 +53,7 @@ with col2:
     st.markdown(
         f"""
         <a href="{cancel_url}" style="text-decoration: none;">
-            <button style="width: 100%; padding: 0.5rem; font-weight: bold; background-color: red; color: white; border: none; border-radius: 5px;">❌ Cancel Payment</button>
+            <button style="width: 100%; padding: 1.5rem; margin: 10px; font-weight: bold; background-color: red; color: white; border: none; border-radius: 5px;">❌ Cancel Payment</button>
         </a>
         """,
         unsafe_allow_html=True,
@@ -62,7 +62,7 @@ with col2:
 # If "Start Payment" clicked, show Paystack popup trigger below
 if start_payment:
     st.markdown("---")
-    st.markdown("### 📤 Launching Paystack Payment...")
+    st.markdown("### 📤 Launching Payment...")
     components.html(f"""
         <html>
           <head>
@@ -99,4 +99,4 @@ if start_payment:
             </script>
           </body>
         </html>
-        """, height=200)
+        """, height=1000)
