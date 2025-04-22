@@ -29,31 +29,33 @@ verify_url = f"https://{backend_url}/verify-payment?ref={reference}&email={email
 cancel_url = f"https://{backend_url}/payment-cancelled"
 manual_cancel_url = f"https://{backend_url}"  # Home page or wherever you want
 
-# Paystack payment modal
+# Paystack payment modal with floating cancel button
 payment_modal = f"""
 <html>
   <head>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
-      body {{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }}
       .cancel-btn {{
-        margin-top: 20px;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
         padding: 10px 20px;
         background-color: #ff4d4f;
         color: white;
         border: none;
         border-radius: 5px;
-        font-size: 16px;
+        font-size: 14px;
+        font-weight: bold;
         cursor: pointer;
       }}
     </style>
   </head>
   <body onload="payWithPaystack()">
+    <button class="cancel-btn" onclick="window.location.href='{manual_cancel_url}'">
+      Cancel Payment
+    </button>
+
     <script>
       function payWithPaystack() {{
         var handler = PaystackPop.setup({{
@@ -81,13 +83,9 @@ payment_modal = f"""
         handler.openIframe();
       }}
     </script>
-
-    <button class="cancel-btn" onclick="window.location.href='{manual_cancel_url}'">
-      Cancel and Return to Website
-    </button>
   </body>
 </html>
 """
 
-# Display modal with custom cancel button
+# Display modal with floating cancel button
 components.html(payment_modal, height=650)
