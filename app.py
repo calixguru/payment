@@ -29,7 +29,7 @@ cancel_url = f"{backend_url}/payment-cancelled"
 
 # Show payment info
 if all([email, amount, reason, reference]):
-    st.success(f"**Email:** {email} | **Amount:** ₦{amount} | **Reason:** {reason}")
+    st.success(f"**Email:** {email} | **Amount:** ₦{amount}")
 else:
     st.error("Missing some payment parameters in the URL.")
 
@@ -43,7 +43,7 @@ with col1:
     st.markdown(
         f"""
         <a href="{verify_url}" style="text-decoration: none;">
-            <button style="width: 100%; padding: 1.5rem; margin: 10px; font-weight: bold; background-color: green; color: white; border: none; border-radius: 5px;">✅ Verify Payment</button>
+            <button style="width: 100%; padding: 1.5rem; margin: 10px; font-weight: bold; background-color: green; color: white; border: none; border-radius: 5px;">✅ I have Paid</button>
         </a>
         """,
         unsafe_allow_html=True,
