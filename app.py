@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # --- Page Configuration ---
-st.set_page_config(page_title="CALIXGURU PAYMENT", layout="centered")
+st.set_page_config(page_title="CALIXGURU", layout="centered")
 
 # --- Query Params ---
 params = st.query_params
@@ -34,7 +34,7 @@ initiate_url = f"{backend_url}/initiate-payment/"
 st.markdown(
     """
     <div style="text-align:center;">
-        <h2 style="color:#4CAF50;">💳 Calixguru Payment Gateway</h2>
+        <h2 style="color:#4CAF50;">💳 Calixguru Payment</h2>
         <p style="font-size:16px;">Use the options below to initiate, verify, or cancel your payment.</p>
     </div>
     """,
