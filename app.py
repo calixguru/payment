@@ -1,91 +1,86 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import urllib.parse
 
-# Get URL query parameters
+# Get query params
 params = st.query_params
 email = params.get("email", "")
 amount = params.get("amount", "")
 reason = params.get("reason", "")
 reference = params.get("ref", "")
 
-# Validate required parameters
+# App title
+st.title("Calixguru Payment Page")
+
+# Validate inputs
 if not all([email, amount, reason, reference]):
-    st.error("Missing payment information in URL.")
+    st.error("Missing payment info in URL. Please ensure email, amount, reason, and reference are passed.")
     st.stop()
 
-# Convert amount to kobo
+# Convert to kobo
 try:
     kobo_amount = int(amount) * 100
 except ValueError:
-    st.error("Invalid amount value.")
+    st.error("Invalid amount.")
     st.stop()
 
-# Paystack public key (safe to expose)
+# Base URLs
+backend_url = "https://calixguru.pythonanywhere.com"
+streamlit_url = "https://calixguru.streamlit.app"
+verify_url = f"{backend_url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
+cancel_url = f"{backend_url}"  # Home page or landing page
+return_to_self_url = f"{streamlit_url}?ref={reference}&email={email}&amount={amount}&reason={reason}"
+
+# Your Paystack public key (safe to expose)
 paystack_pk = "pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068"
 
-# URLs
-backend_url = "calixguru.pythonanywhere.com"
-verify_url = f"https://{backend_url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
-cancel_url = f"https://{backend_url}/payment-cancelled"
-manual_cancel_url = f"https://{backend_url}"  # Home page or wherever you want
-
-# Paystack payment modal with floating cancel button
-payment_modal = f"""
-<html>
-  <head>
-    <script src="https://js.paystack.co/v1/inline.js"></script>
-    <style>
-      .cancel-btn {{
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        padding: 10px 20px;
-        background-color: #ff4d4f;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 14px;
-        font-weight: bold;
-        cursor: pointer;
-      }}
-    </style>
-  </head>
-  <body onload="payWithPaystack()">
-    <button class="cancel-btn" onclick="window.location.href='{manual_cancel_url}'">
-      Cancel Payment
-    </button>
-
-    <script>
-      function payWithPaystack() {{
-        var handler = PaystackPop.setup({{
-          key: '{paystack_pk}',
-          email: '{email}',
-          amount: {kobo_amount},
-          currency: 'NGN',
-          ref: '{reference}',
-          metadata: {{
-            custom_fields: [
-              {{
-                display_name: "Payment Reason",
-                variable_name: "reason",
-                value: "{reason}"
+# 3 Buttons
+col1, col2, col3 = st.columns(3)
+with col1:
+    if st.button("💳 Start Payment"):
+        # Inject Paystack modal inside iframe
+        payment_html = f"""
+        <html>
+          <head>
+            <script src="https://js.paystack.co/v1/inline.js"></script>
+          </head>
+          <body onload="payWithPaystack()">
+            <script>
+              function payWithPaystack() {{
+                var handler = PaystackPop.setup({{
+                  key: '{paystack_pk}',
+                  email: '{email}',
+                  amount: {kobo_amount},
+                  currency: 'NGN',
+                  ref: '{reference}',
+                  metadata: {{
+                    custom_fields: [
+                      {{
+                        display_name: "Payment Reason",
+                        variable_name: "reason",
+                        value: "{reason}"
+                      }}
+                    ]
+                  }},
+                  callback: function(response) {{
+                    window.location.href = "{return_to_self_url}";
+                  }},
+                  onClose: function() {{
+                    alert("Payment modal closed.");
+                  }}
+                }});
+                handler.openIframe();
               }}
-            ]
-          }},
-          callback: function(response) {{
-            window.location.href = "{verify_url}";
-          }},
-          onClose: function() {{
-            window.location.href = "{cancel_url}";
-          }}
-        }});
-        handler.openIframe();
-      }}
-    </script>
-  </body>
-</html>
-"""
+            </script>
+          </body>
+        </html>
+        """
+        components.html(payment_html, height=600)
 
-# Display modal with floating cancel button
-components.html(payment_modal, height=650)
+with col2:
+    verify_link = f"{verify_url}"
+    st.markdown(f"[🔍 Verify Payment]({verify_link})", unsafe_allow_html=True)
+
+with col3:
+    cancel_link = f"{cancel_url}"
+    st.markdown(f"[❌ Cancel Payment]({cancel_link})", unsafe_allow_html=True)
