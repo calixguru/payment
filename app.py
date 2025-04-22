@@ -1,12 +1,14 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import urllib.parse
 
-# Use updated API
+# Use updated query param handling
 params = st.query_params
 email = params.get("email", "")
 amount = params.get("amount", "")
 reason = params.get("reason", "")
 reference = params.get("ref", "")
+return_url = params.get("return", f"https://calixguru.pythonanywhere.com")  # fallback URL
 
 # Validate input
 if not all([email, amount, reason, reference]):
@@ -20,18 +22,20 @@ except ValueError:
     st.error("Invalid amount value.")
     st.stop()
 
-# Your public Paystack key (safe to expose)
+# Paystack public key (safe to expose)
 paystack_pk = "pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068"
 
-# Your Django URLs (replace 127.0.0.1 with actual deployed domain when live)
+# Backend endpoints
 backend_url = "calixguru.pythonanywhere.com"
-verify_url = f"https://{backend_url}/verify-payment?ref={reference}&email={email}&amount={amount}&reason={reason}"
-cancel_url = f"https://{backend_url}/payment-cancelled"
+verify_url = f"https://{backend_url}/verify-payment?ref={urllib.parse.quote(reference)}&email={urllib.parse.quote(email)}&amount={amount}&reason={urllib.parse.quote(reason)}"
+cancel_url = urllib.parse.quote(return_url)  # redirect to previous page or default
 
-# Paystack modal HTML
+# Paystack modal
 payment_modal = f"""
 <html>
-  <head><script src="https://js.paystack.co/v1/inline.js"></script></head>
+  <head>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+  </head>
   <body onload="payWithPaystack()">
     <script>
       function payWithPaystack() {{
@@ -54,7 +58,7 @@ payment_modal = f"""
             window.location.href = "{verify_url}";
           }},
           onClose: function() {{
-            window.location.href = "{cancel_url}";
+            window.location.href = decodeURIComponent("{cancel_url}");
           }}
         }});
         handler.openIframe();
@@ -64,5 +68,5 @@ payment_modal = f"""
 </html>
 """
 
-# Display in Streamlit iframe (adjust height to show full modal)
+# Show modal inside Streamlit
 components.html(payment_modal, height=600)
