@@ -88,7 +88,7 @@ if start_payment:
             </script>
           </body>
         </html>
-        """, height=300)
+        """, height=500)
     
 
 # Show payment info
