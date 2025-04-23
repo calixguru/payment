@@ -8,7 +8,7 @@ st.markdown("Please choose an option below to proceed:")
 
 # Get query parameters
 
-params = st.query_params()#experimental_get_query_params()#st.query_params
+params = st.query_params#experimental_get_query_params()#st.query_params
 email = params.get("email", "")
 amount = params.get("amount", "")
 reason = params.get("reason", "")
