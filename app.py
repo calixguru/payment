@@ -34,11 +34,11 @@ col1, col2 = st.columns(2)
 with col2:
     st.markdown(
         f"""
-        <a href="{cancel_url}" style="text-align: right; text-decoration: none; font-family: 'Baloo 2', cursive">
+        <a href="{cancel_url}" style="text-align: right; text-decoration: none; ">
             ❌ Cancel Payment
         </a>
         <span style="width: 20%";>|</span>
-        <a href="{verify_url}"margin:20px; style="text-align: right; text-decoration: none; font-family: 'Baloo 2', cursive">
+        <a href="{verify_url}"margin:20px; style="text-align: right; text-decoration: none; ">
             Already Paid?
         </a>
         """,
