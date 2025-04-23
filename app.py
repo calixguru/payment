@@ -3,11 +3,12 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="CalixGuru Payment", layout="centered")
 
-st.markdown("## 🔐 CalixGuru Payment Page")
+st.markdown("## 🔐 CalixGuru Payment")
 st.markdown("Please choose an option below to proceed:")
 
 # Get query parameters
-params = st.query_params
+
+params = st.experimental_get_query_params()#st.query_params
 email = params.get("email", "")
 amount = params.get("amount", "")
 reason = params.get("reason", "")
@@ -23,46 +24,34 @@ except (ValueError, TypeError):
 paystack_pk = "pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068"
 
 # Django backend URLs
-backend_url = "https://calixguru.pythonanywhere.com"
+backend_url = "https://calixguru.pythonanywhere.com"#"http://127.0.0.1:8000"
 verify_url = f"{backend_url}/verify-payment/?ref={reference}&email={email}&amount={amount}&reason={reason}"
-cancel_url = f"{backend_url}/payment-cancelled"
-
-# Show payment info
-if all([email, amount, reason, reference]):
-    st.success(f"**Email:** {email} | **Amount:** ₦{amount}")
-else:
-    st.error("Missing some payment parameters in the URL.")
-
-# State to control display of Paystack
-start_payment = st.button("💳 Start Payment")
+cancel_url = f"{backend_url}/payment-cancelled/?ref={reference}&email={email}&amount={amount}&reason={reason}"
 
 # Manual links
 col1, col2 = st.columns(2)
 
-with col1:
+with col2:
     st.markdown(
         f"""
-        <a href="{verify_url}" style="text-decoration: none;">
-            <button style="width: 100%; padding: 1.5rem; margin: 10px; font-weight: bold; background-color: green; color: white; border: none; border-radius: 5px;">✅ I have Paid</button>
+        <a href="{cancel_url}" style="text-align: right; text-decoration: none; font-family: 'Baloo 2', cursive">
+            ❌ Cancel Payment
+        </a>
+        <span style="width: 20%";>|</span>
+        <a href="{verify_url}"margin:20px; style="text-align: right; text-decoration: none; font-family: 'Baloo 2', cursive">
+            Already Paid?
         </a>
         """,
         unsafe_allow_html=True,
     )
 
-with col2:
-    st.markdown(
-        f"""
-        <a href="{cancel_url}" style="text-decoration: none;">
-            <button style="width: 100%; padding: 1.5rem; margin: 10px; font-weight: bold; background-color: red; color: white; border: none; border-radius: 5px;">❌ Cancel Payment</button>
-        </a>
-        """,
-        unsafe_allow_html=True,
-    )
+# State to control display of Paystack
+start_payment = st.button("💳 Start Payment")
 
 # If "Start Payment" clicked, show Paystack popup trigger below
 if start_payment:
     st.markdown("---")
-    st.markdown("### 📤 Launching Payment...")
+    st.markdown("Initiating Payment...")
     components.html(f"""
         <html>
           <head>
@@ -99,4 +88,15 @@ if start_payment:
             </script>
           </body>
         </html>
-        """, height=1000)
+        """, height=300)
+    
+
+# Show payment info
+if all([email, amount, reason, reference]):
+    st.success(f"**Email:** {email} | **Amount:** ₦{amount}")
+else:
+    st.error("Missing some payment parameters in the URL.")
+
+
+
+
