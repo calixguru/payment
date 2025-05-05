@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -72,6 +69,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="mammoth.browser.min.js"></script> <!-- Ensure this is in your static folder -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
 
 <body style="font-family: 'Baloo 2', cursive;">
@@ -296,12 +294,12 @@
           <p class="rounded-full bg-indigo-500 px-2.5 py-1 text-xs font-semibold leading-5 text-white uppercase">CALIXGURU</p>
         </div>
         <p class="mt-4 text-sm leading-6 font-extrabold" style="color: orange;">
-        Email: <span id="email" class=""></span>
+        Email: <span id="email" class="text-gray-900 font-semibold"></span>
       </p>
         <ul class="mt-8 space-y-4 text-sm leading-6 text-gray-300 xl:mt-10">
           <li class="flex gap-x-3">
             <button onclick="payWithPaystack()" class="app-button-primary w-full" style="background-color: #f97316;">
-              Continue to pay <i class="fas fa-naira-sign"></i><span id="amount"></span>
+              Continue to pay <span id="amount"></span>
             </button>
           </li>
         </ul>
@@ -314,7 +312,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     const email = urlParams.get('email') || '';
     const amount = urlParams.get('amount') || '';
-    const reason = urlParams.get('reason') || '';
 
     // Display the email and amount on the page
     document.getElementById('email').textContent = email;
@@ -329,13 +326,13 @@
         currency: 'NGN',
         callback: function(response) {
           // Redirect to verification page upon successful payment
-          window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${response.reference}&email=${email}&amount=${amount}&reason=${reason}`;
+          window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${response.reference}&email=${email}&amount=${amount}`;
         },
         onClose: function() {
           // Swal.fire instead of alert for a better UI experience
           Swal.fire({
             icon: 'warning',
-            title: 'Payment Process Cancelled',
+            title: 'Payment Cancelled',
             text: 'It seems like you cancelled the payment process.',
             confirmButtonText: 'Ok',
             confirmButtonColor: '#4CAF50',
