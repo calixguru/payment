@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CalixGuru Payment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-gradient-to-r from-indigo-50 to-blue-50 min-h-screen flex flex-col justify-center items-center">
+  <!-- Main Payment Box -->
+  <div class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-gray-800">CalixGuru Payment</h1>
+      <p class="text-gray-600 mt-2">Please confirm your payment details below.</p>
+    </div>
+
+    <!-- Display Payment Details -->
+    <div class="space-y-4">
+      <div class="flex justify-between">
+        <span class="text-gray-700 font-medium">Email:</span>
+        <span id="email" class="text-gray-900 font-semibold"></span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-700 font-medium">Amount:</span>
+        <span id="amount" class="text-gray-900 font-semibold"></span>
+      </div>
+    </div>
+
+    <!-- Paystack Payment Button -->
+    <div class="space-y-4">
+      <button onclick="payWithPaystack()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 transition duration-300 focus:outline-none">
+        Proceed to Payment
+      </button>
+    </div>
+
+    <!-- Manual Return Button -->
+    <div class="text-center">
+      <a href="https://calixguru.com" class="text-indigo-600 hover:text-indigo-800 text-sm">Return to CalixGuru</a>
+    </div>
+  </div>
+
+  <!-- Payment Script -->
+  <script>
+    // Extract URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email') || '';
+    const amount = urlParams.get('amount') || '';
+
+    // Display the email and amount on the page
+    document.getElementById('email').textContent = email;
+    document.getElementById('amount').textContent = `₦${amount}`;
+
+    // Paystack Payment Handler
+    function payWithPaystack() {
+      const handler = PaystackPop.setup({
+        key: 'pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068', // Your Live Paystack Key
+        email: email,
+        amount: parseInt(amount) * 100, // Convert amount to Kobo
+        currency: 'NGN',
+        callback: function(response) {
+          // Redirect to verification page upon successful payment
+          window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${response.reference}&email=${email}&amount=${amount}`;
+        },
+        onClose: function() {
+          // Swal.fire instead of alert for a better UI experience
+          Swal.fire({
+            icon: 'warning',
+            title: 'Payment Process Cancelled',
+            text: 'It seems like you cancelled the payment process.',
+            confirmButtonText: 'Ok',
+            confirmButtonColor: '#4CAF50',
+          });
+        }
+      });
+      handler.openIframe();
+    }
+  </script>
+</body>
+</html>
