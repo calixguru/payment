@@ -1,4 +1,7 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -294,7 +297,7 @@
           <p class="rounded-full bg-indigo-500 px-2.5 py-1 text-xs font-semibold leading-5 text-white uppercase">CALIXGURU</p>
         </div>
         <p class="mt-4 text-sm leading-6 font-extrabold" style="color: orange;">
-        Email: <span id="email" class="text-gray-900 font-semibold"></span>
+        Email: <span id="email" class="font-semibold"></span>
       </p>
         <ul class="mt-8 space-y-4 text-sm leading-6 text-gray-300 xl:mt-10">
           <li class="flex gap-x-3">
@@ -303,6 +306,10 @@
             </button>
           </li>
         </ul>
+        <p onclick="back()" class="mt-4 text-sm leading-6 
+        font-extrabold cursor-pointer text-white uppercase">
+        Return to <span id="email" class="font-semibold">calixguru</span>
+      </p>
       </div>
     </div>
   </div>
@@ -312,6 +319,8 @@
     const urlParams = new URLSearchParams(window.location.search);
     const email = urlParams.get('email') || '';
     const amount = urlParams.get('amount') || '';
+    const reason = urlParams.get('reason') || '';
+    const ref = urlParams.get('ref') || '';
 
     // Display the email and amount on the page
     document.getElementById('email').textContent = email;
@@ -341,9 +350,10 @@
       });
       handler.openIframe();
     }
+    function back() {
+      window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${ref}&email=${email}&amount=${amount}&reason=${reason}`;
+    }
   </script>
-
-
 
 <style>
   body{
