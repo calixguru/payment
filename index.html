@@ -335,7 +335,7 @@
         currency: 'NGN',
         callback: function(response) {
           // Redirect to verification page upon successful payment
-          window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${ref}&email=${email}&amount=${amount}&reason=${reason}$pref=${response.reference}`;
+          window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${ref}&email=${email}&amount=${amount}&reason=${reason}&pref=${response.reference}`;
         },
         onClose: function() {
           // Swal.fire instead of alert for a better UI experience
