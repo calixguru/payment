@@ -280,76 +280,65 @@
 
     
 
-<section id="page2" class="py-12 page active">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12 text-white">
-      <h2 class="text-4xl font-extrabold sm:text-5xl">
+<section class="py-12 bg-slate-900 min-h-screen flex items-center">
+  <div class="max-w-xl mx-auto px-4 w-full">
+
+    <div class="bg-white/5 ring-2 ring-indigo-500 rounded-3xl p-8 text-center">
+      <h2 class="text-3xl font-extrabold text-white mb-4">
         CALIXGURU PAYMENT
       </h2>
-    </div>
 
-    <div class="isolate mx-auto mt-5 gap-4 lg:mx-0 lg:max-w-xl text-center">
-      <div class="bg-white/5 ring-2 ring-indigo-500 rounded-3xl p-8 xl:p-10">
-        
-        <h2 class="text-lg font-semibold leading-8 text-white">
-          CLICK BELOW TO COMPLETE PAYMENT
-        </h2>
+      <p class="text-orange-400 font-bold mb-6">
+        Please return to this page once your payment is successful
+      </p>
 
-        <div class="mt-4">
-          <h2 class="text-xl font-extrabold text-orange-500">
-            PLEASE RETURN TO THIS PAGE ONCE YOUR PAYMENT IS SUCCESSFUL
-          </h2>
-        </div>
-
-        <p class="mt-6 text-sm font-extrabold text-orange-400">
-          Email: <span id="email" class="font-semibold"></span>
-        </p>
-
-        <ul class="mt-8 space-y-4">
-          <li>
-            <button
-              onclick="payWithPaystack()"
-              class="w-full rounded-xl px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-              style="background-color:#f97316;"
-            >
-              Continue to pay <span id="amount"></span>
-            </button>
-          </li>
-        </ul>
-
-        <p onclick="back()"
-           class="mt-6 text-sm font-extrabold cursor-pointer text-white uppercase">
-          Cancel this payment
-        </p>
+      <div class="space-y-3 text-sm text-white">
+        <p>Email: <span id="email" class="font-semibold"></span></p>
+        <p>Amount: <span id="amount" class="font-semibold"></span></p>
       </div>
+
+      <button
+        onclick="payWithPaystack()"
+        class="mt-8 w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition">
+        Continue to Pay
+      </button>
+
+      <p onclick="cancelPayment()"
+         class="mt-6 text-xs font-bold uppercase text-white cursor-pointer">
+        Cancel this payment
+      </p>
     </div>
+
   </div>
 </section>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
 
 <script>
   // ===============================
   // Extract URL parameters
   // ===============================
   const params = new URLSearchParams(window.location.search);
-  const email = params.get('email') || '';
+  const email  = params.get('email') || '';
   const amount = params.get('amount') || '';
   const reason = params.get('reason') || '';
-  const ref = params.get('ref') || '';
+  const ref    = params.get('ref') || '';
 
-  document.getElementById('email').textContent = email;
+  document.getElementById('email').textContent  = email;
   document.getElementById('amount').textContent = `₦${amount}`;
 
   // ===============================
-  // Generate YOUR OWN Paystack reference
+  // Generate YOUR OWN reference
   // ===============================
   function generatePref() {
-    return 'CG-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    return 'CG-' + Date.now() + '-' +
+           Math.random().toString(36).substring(2, 8).toUpperCase();
   }
 
   const pref = generatePref();
 
   // ===============================
-  // SAVE verification URL BEFORE payment
+  // SAVE verification URL IMMEDIATELY
   // ===============================
   const paymentVerificationUrl =
     `https://calixguru.pythonanywhere.com/verify-payment/` +
@@ -362,7 +351,7 @@
   localStorage.setItem('paymentVerificationUrl', paymentVerificationUrl);
 
   // ===============================
-  // Paystack Handler
+  // Paystack handler
   // ===============================
   function payWithPaystack() {
     const handler = PaystackPop.setup({
@@ -371,31 +360,28 @@
       amount: parseInt(amount, 10) * 100,
       currency: 'NGN',
 
-      // 🔑 YOU control the reference
+      // 🔑 YOU control reference
       reference: pref,
 
-      callback: function (response) {
-        // response.reference === pref
+      callback: function () {
+        // reference already saved
         window.location.href = paymentVerificationUrl;
       },
 
       onClose: function () {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Payment Cancelled',
-          text: 'It seems like you cancelled the payment process.',
-          confirmButtonColor: '#4CAF50',
-        });
+        alert('Payment cancelled');
       }
     });
 
     handler.openIframe();
   }
 
-  function back() {
-    window.location.href = 'https://calixguru.pythonanywhere.com/payment-cancelled';
+  function cancelPayment() {
+    window.location.href =
+      'https://calixguru.pythonanywhere.com/payment-cancelled';
   }
 </script>
+
 
 
 <style>
