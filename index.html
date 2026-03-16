@@ -1,66 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calixguru Payment</title>
-<link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-<script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<style>
-    body { font-family: 'Baloo 2', cursive; background-color: #3f4170; }
-    .app-button-primary { padding: 1rem 2rem; border-radius: 0.5rem; color: white; font-weight: 700; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn with Calixguru</title>
+
+    <!-- Tailwind CSS -->
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Baloo+2&display=swap" rel="stylesheet">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+    <!-- Paystack Inline JS -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+
+    <style>
+        body {
+            font-family: 'Baloo 2', cursive;
+            background-color: #3f4170;
+        }
+
+        .app-button-primary {
+            padding: 1rem 2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .app-button-primary:hover {
+            opacity: 0.9;
+        }
+
+        .gradient-text {
+            font-weight: bolder;
+            font-size: 1.0rem;
+            background: linear-gradient(45deg, orange, blue, red, purple, orange, purple);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        }
+    </style>
 </head>
+
 <body>
-<section class="py-12 text-center text-white">
-    <h2 class="text-4xl font-extrabold mb-8">CALIXGURU PAYMENT</h2>
-    <p class="text-lg mb-4">Click below to finish up payment</p>
-    <p class="text-orange-500 font-bold">Email: <span id="email"></span></p>
-    <p class="text-orange-500 font-bold">Amount: <span id="amount"></span></p>
-    <button onclick="payWithPaystack()" class="app-button-primary bg-orange-500 mt-4">
-        Continue to Pay
-    </button>
-</section>
 
-<script>
-    // Extract URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email') || '';
-    const amount = urlParams.get('amount') || '0';
-    const reason = urlParams.get('reason') || '';
-    const ref = urlParams.get('ref') || '';
+    <section class="py-12">
+        <div class="max-w-3xl mx-auto px-4 text-center text-white">
+            <h1 class="text-4xl font-extrabold mb-6">CALIXGURU PAYMENT</h1>
 
-    // Display email and amount
-    document.getElementById('email').textContent = email;
-    document.getElementById('amount').textContent = `₦${amount}`;
+            <div class="bg-white/10 rounded-2xl p-8 text-center">
+                <p class="text-lg font-semibold mb-4">Click below to finish your payment</p>
 
-    function payWithPaystack() {
-        // Force reference to string
-        const customRef = String(ref);
+                <p class="text-orange-400 font-bold mb-2">
+                    Email: <span id="emailDisplay"></span>
+                </p>
+                <p class="text-orange-400 font-bold mb-4">
+                    Amount: <span id="amountDisplay"></span>
+                </p>
 
-        const handler = PaystackPop.setup({
-            key: 'pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068',
-            email: email,
-            amount: parseInt(amount) * 100, // convert to kobo
-            currency: 'NGN',
-            reference: customRef, // Pass your exact alphanumeric ref
-            callback: function(response) {
-                // Use your original reference and Paystack reference
-                window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${customRef}&email=${email}&amount=${amount}&reason=${reason}&pref=${response.reference}`;
-            },
-            onClose: function() {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Payment Cancelled',
-                    text: 'You cancelled the payment process.',
-                    confirmButtonText: 'Ok',
-                    confirmButtonColor: '#4CAF50'
-                });
-            }
-        });
-        handler.openIframe();
-    }
-</script>
+                <button onclick="payWithPaystack()" class="app-button-primary bg-orange-500 w-full mb-4">
+                    Continue to Pay
+                </button>
+
+                <p onclick="goBack()" class="text-white cursor-pointer font-semibold uppercase">
+                    Return to Calixguru
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Extract URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email') || '';
+        const amount = urlParams.get('amount') || '';
+        const reason = urlParams.get('reason') || '';
+        const ref = urlParams.get('ref') || '';
+
+        // Display email and amount
+        document.getElementById('emailDisplay').textContent = email;
+        document.getElementById('amountDisplay').textContent = `₦${amount}`;
+
+        // Paystack payment function
+        function payWithPaystack() {
+            const handler = PaystackPop.setup({
+                key: 'pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068', // Your live key
+                email: email,
+                amount: parseInt(amount) * 100, // convert to Kobo
+                currency: 'NGN',
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: "Custom Reference",
+                            variable_name: "custom_ref",
+                            value: ref // YOUR custom alphanumeric reference
+                        }
+                    ]
+                },
+                callback: function (response) {
+                    // Redirect to backend with both Paystack and custom references
+                    window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?pref=${response.reference}&ref=${ref}&email=${email}&amount=${amount}&reason=${reason}`;
+                },
+                onClose: function () {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Payment Cancelled',
+                        text: 'You cancelled the payment process.',
+                        confirmButtonText: 'Ok',
+                        confirmButtonColor: '#4CAF50'
+                    });
+                }
+            });
+            handler.openIframe();
+        }
+
+        // Return function
+        function goBack() {
+            window.location.href = `https://calixguru.pythonanywhere.com/payment-cancelled`;
+        }
+    </script>
+
 </body>
 </html>
