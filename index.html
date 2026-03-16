@@ -334,6 +334,7 @@
         email: email,
         amount: parseInt(amount) * 100, // Convert amount to Kobo
         currency: 'NGN',
+        reference: ref,
         callback: function(response) {
           // Redirect to verification page upon successful payment
           window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?ref=${ref}&email=${email}&amount=${amount}&reason=${reason}&pref=${response.reference}`;
