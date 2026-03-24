@@ -105,53 +105,60 @@ body {
 </div>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const email = urlParams.get('email') || '';
-const amount = urlParams.get('amount') || '';
-const reason = urlParams.get('reason') || '';
-const ref = urlParams.get('ref') || '';
+  document.addEventListener("DOMContentLoaded", function () {
 
-document.getElementById('amountDisplay').textContent = `₦${amount}`;
+      const urlParams = new URLSearchParams(window.location.search);
+      const email = urlParams.get('email') || '';
+      const amount = urlParams.get('amount') || '';
+      const reason = urlParams.get('reason') || '';
+      const ref = urlParams.get('ref') || '';
 
-function payWithPaystack() {
-    if (!email || !amount) {
-        Swal.fire("Error", "Missing payment details", "error");
-        return;
-    }
+      const amountEl = document.getElementById('amountDisplay');
+      if (amountEl) {
+          amountEl.textContent = `₦${amount}`;
+      }
 
-    const handler = PaystackPop.setup({
-        key: 'pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068',
-        email: email,
-        amount: parseInt(amount) * 100,
-        currency: 'NGN',
+      window.payWithPaystack = function () {
+          if (!email || !amount) {
+              Swal.fire("Error", "Missing payment details", "error");
+              return;
+          }
 
-        metadata: {
-            custom_fields: [{
-                display_name: "Reference",
-                variable_name: "ref",
-                value: ref
-            }]
-        },
+          const handler = PaystackPop.setup({
+              key: 'pk_live_008159524c1237cf3094bc3db1ae0a5d8b4ce068',
+              email: email,
+              amount: parseInt(amount) * 100,
+              currency: 'NGN',
 
-        callback: function(response) {
-            window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?pref=${response.reference}&ref=${ref}&email=${email}&amount=${amount}&reason=${reason}`;
-        },
+              metadata: {
+                  custom_fields: [{
+                      display_name: "Reference",
+                      variable_name: "ref",
+                      value: ref
+                  }]
+              },
 
-        onClose: function() {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Payment Cancelled',
-                text: 'You cancelled the payment process'
-            });
-        }
-    });
+              callback: function(response) {
+                  window.location.href = `https://calixguru.pythonanywhere.com/verify-payment/?pref=${response.reference}&ref=${ref}&email=${email}&amount=${amount}&reason=${reason}`;
+              },
 
-    handler.openIframe();
-}
+              onClose: function () {
+                  Swal.fire({
+                      icon: 'warning',
+                      title: 'Payment Cancelled',
+                      text: 'You cancelled the payment process'
+                  });
+              }
+          });
 
-function goBack() {
-    window.location.href = `https://calixguru.pythonanywhere.com/payment-cancelled`;
-}
+          handler.openIframe();
+      };
+
+      window.goBack = function () {
+          window.location.href = `https://calixguru.pythonanywhere.com/payment-cancelled`;
+      };
+
+  });
 </script>
 
 </body>
