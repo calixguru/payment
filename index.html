@@ -132,10 +132,15 @@ body {
 
               metadata: {
                   custom_fields: [{
-                      display_name: "Reference",
-                      variable_name: "ref",
+                      display_name: "Custom_reference",
+                      variable_name: "cref",
                       value: ref
-                  }]
+                  },
+                     {
+                      display_name: "Reason",
+                      variable_name: "reason",
+                      value: reason
+                  },            ]
               },
 
               callback: function(response) {
